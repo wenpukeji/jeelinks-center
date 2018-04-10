@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wenpu.jeelinks.modules.center.dao.EUserDao">
+    
+	<sql id="eUserColumns">
+		a.id AS "id",
+		a.user_name AS "userName",
+		a.user_password AS "userPassword",
+		a.user_group AS "userGroup",
+		a.nick_name AS "nickName",
+		a.point AS "point",
+		case when a.user_group='1' then ts.std_avatar else tc.photo end as "photo"
+	</sql>
+	
+	<sql id="eUserJoins">
+		left join table_student ts on a.id=ts.id
+		left join sys_user tc on a.id=tc.id
+	</sql>
+    
+	<select id="getByStudentId" resultType="EUser">
+		SELECT 
+			<include refid="eUserColumns"/>
+		FROM e_user a
+			<include refid="eUserJoins"/>
+		where 
+		<!--ts.id=#{0} 由于保持euser和student表id一致了，并且username不一致，暂改为这样-->
+		a.id=#{0}
+	</select>
+	<select id="getByUserName" resultType="EUser">
+		SELECT 
+			<include refid="eUserColumns"/>
+		FROM e_user a
+			<include refid="eUserJoins"/>
+		where 
+		<!--ts.id=#{0} 由于保持euser和student表id一致了，并且username不一致，暂改为这样-->
+		a.user_name=#{0}
+	</select>
+	<select id="getByTeacherId" resultType="EUser">
+		SELECT 
+			<include refid="eUserColumns"/>
+		FROM e_user a
+			<include refid="eUserJoins"/>
+		where 
+		<!--tc.id=#{0} 由于保持euser和student表id一致了，并且username不一致，暂改为这样-->
+		a.id=#{0}
+	</select>
+	<select id="get" resultType="EUser">
+		SELECT 
+			<include refid="eUserColumns"/>
+		FROM e_user a
+		<include refid="eUserJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findByLoginName" resultType="EUser">
+		SELECT 
+			<include refid="eUserColumns"/>
+		FROM e_user a
+		<include refid="eUserJoins"/>
+		WHERE a.user_name = #{loginName}
+	</select>
+	
+	<select id="findList" resultType="EUser">
+		SELECT 
+			<include refid="eUserColumns"/>
+		FROM e_user a
+		<include refid="eUserJoins"/>
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="EUser">
+		SELECT 
+			<include refid="eUserColumns"/>
+		FROM e_user a
+		<include refid="eUserJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO e_user(
+			id,
+			user_name,
+			user_password,
+			user_group,
+			nick_name
+		) VALUES (
+			#{id},
+			#{userName},
+			#{userPassword},
+			#{userGroup},
+			#{nickName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE e_user SET 	
+			user_name = #{userName},
+			user_password = #{userPassword},
+			user_group = #{userGroup},
+			nick_name = #{nickName},
+			point = #{point}
+		WHERE id = #{id}
+	</update>
+	<update id="syncPointFromStudent">
+		update e_user a set point=(select accumulate_points from table_student b where b.std_code=a.user_name)
+		where a.user_group='1'
+	</update>
+	
+	<update id="delete">
+		DELETE FROM e_user
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

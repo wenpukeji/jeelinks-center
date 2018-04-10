@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wenpu.jeelinks.modules.center.dao.TLevelDao">
+    
+	<sql id="tLevelColumns">
+		a.id AS "id",
+		a.level_name AS "levelName",
+		a.level_scope AS "levelScope",
+		a.from_point AS "fromPoint",
+		a.to_point AS "toPoint",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.upate_date AS "upateDate",
+		a.update_by AS "updateBy.id"
+	</sql>
+	
+	<sql id="tLevelJoins">
+	</sql>
+    
+	<select id="get" resultType="TLevel">
+		SELECT 
+			<include refid="tLevelColumns"/>
+		FROM t_level a
+		<include refid="tLevelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TLevel">
+		SELECT 
+			<include refid="tLevelColumns"/>
+		FROM t_level a
+		<include refid="tLevelJoins"/>
+		<where>
+			
+			<if test="levelName != null and levelName != ''">
+				AND a.level_name = #{levelName}
+			</if>
+			<if test="levelScope != null and levelScope != ''">
+				AND a.level_scope = #{levelScope}
+			</if>
+			
+			<if test="points != null and points != ''">
+				<![CDATA[
+				AND a.from_point <=#{points}  AND a.to_point >= #{points} 
+				]]>
+			</if>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	<select id="findByScopeAndPonit" resultType="TLevel">
+		SELECT 
+			<include refid="tLevelColumns"/>
+		FROM t_level a
+		<include refid="tLevelJoins"/>
+		<where>
+			
+				AND a.level_scope = #{levelScope}
+				<![CDATA[
+				AND a.from_point <=#{points}  AND a.to_point >= #{points} 
+				]]>
+			
+		</where>
+	</select>
+	
+	<select id="findAllList" resultType="TLevel">
+		SELECT 
+			<include refid="tLevelColumns"/>
+		FROM t_level a
+		<include refid="tLevelJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_level(
+			id,
+			level_name,
+			level_scope,
+			from_point,
+			to_point,
+			create_date,
+			create_by,
+			upate_date,
+			update_by
+		) VALUES (
+			#{id},
+			#{levelName},
+			#{levelScope},
+			#{fromPoint},
+			#{toPoint},
+			#{createDate},
+			#{createBy.id},
+			#{upateDate},
+			#{updateBy.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_level SET 	
+			level_name = #{levelName},
+			level_scope = #{levelScope},
+			from_point = #{fromPoint},
+			to_point = #{toPoint},
+			upate_date = #{upateDate},
+			update_by = #{updateBy.id}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM t_level
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

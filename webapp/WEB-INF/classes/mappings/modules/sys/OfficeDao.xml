@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (c) 2017.
+  ~ Date:17-8-22 上午10:48
+  ~ Author:liuhui
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wenpu.jeelinks.modules.sys.dao.OfficeDao">
+
+	<sql id="officeColumns">
+		a.id,
+		a.parent_id AS "parent.id",
+		a.parent_ids AS "parentIds",
+		a.area_id AS "area.id",
+		a.code,
+		a.name,
+		a.sort,
+		a.type,
+		a.grade,
+		a.address, 
+		a.zip_code, 
+		a.master, 
+		a.phone, 
+		a.fax, 
+		a.email, 
+		a.remarks,
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag,
+		a.useable AS useable,
+		a.enable AS enable,
+		a.primary_person AS "primaryPerson.id",
+		a.deputy_person AS "deputyPerson.id",
+		a.office_type AS "officeType",
+		a.link_time AS "linkTime",
+		p.name AS "parent.name",
+		ar.name AS "area.name",
+		ar.parent_ids AS "area.parentIds",
+		pp.name AS "primaryPerson.name",
+		dp.name AS "deputyPerson.name"
+	</sql>
+
+	<sql id="officeJoins">
+		LEFT JOIN sys_office p ON p.id = a.parent_id
+		LEFT JOIN sys_area ar ON ar.id = a.area_id
+		LEFT JOIN sys_user pp ON pp.id = a.primary_person
+		LEFT JOIN sys_user dp ON dp.id = a.deputy_person
+    </sql>
+
+	<select id="get" resultType="Office">
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Office">
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		OR a.id = #{currentUser.office.id}
+		ORDER BY a.sort, a.code
+	</select>
+	<select id="findByIds" resultType="Office">
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		<!-- 数据范围过滤 -->
+		where a.id IN
+		<foreach collection="ids" close=")" open="(" separator="," item="s">
+			#{s}
+		</foreach>
+		ORDER BY a.sort, a.code
+	</select>
+	<select id="findSchoolList" resultType="Office">
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		and a.office_type='1' and a.type = '1'
+		<if test="name != null and name != '' ">
+			and a.name like CONCAT('%', #{name}, '%')
+		</if>
+		<if test="address != null and address != '' ">
+			and a.address like CONCAT('%', #{address}, '%')
+		</if>
+		<if test="area != null and area.id != null and area.id != ''">
+			and a.area_id = #{area.id}
+		</if>
+		<if test="parent != null and parent.id != null and parent.id != ''">
+			and a.parent_id = #{parent.id}
+		</if>
+		<if test="linkStatus != null and linkStatus == 1">
+			and a.parent_id = '1'
+		</if>
+		<if test="linkStatus != null and linkStatus == 2">
+			and a.parent_id != '1'
+		</if>
+		<if test="areaIds != null and areaIds.size() != 0">
+			and a.area_id in
+			<foreach collection="areaIds" item="s" separator="," open="(" close=")">
+				#{s}
+			</foreach>
+		</if>
+		<if test="ids != null and ids.size() != 0">
+			and a.id in
+			<foreach collection="ids" item="s" separator="," open="(" close=")">
+				#{s}
+			</foreach>
+		</if>
+		<if test="page !=null and page.orderBy != null and page.orderBy != ''">
+			ORDER BY ${page.orderBy}
+		</if>
+
+	</select>
+	<select id="findSchoolByAreaId" resultType="Office">
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		and a.office_type='1'
+		<if test="name != null and name != '' ">
+			and a.name like CONCAT('%', #{name}, '%')
+		</if>
+		<if test="areaId != null">
+			and a.area_id = #{areaId}
+		</if>
+		ORDER BY a.sort, a.code
+	</select>
+	<select id="findSchoolListByQy" resultType="Office">
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		and office_type='1'
+		<if test="name != null and name != '' ">
+			and a.name like CONCAT('%', #{name}, '%')
+		</if>
+		and (find_in_set(#{quyuId},a.parent_ids)
+			or #{quyuId}=a.id
+		)
+		ORDER BY a.sort, a.code
+	</select>
+
+	<select id="findAllList" resultType="Office">
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		ORDER BY   a.sort,a.code
+	</select>
+
+	<select id="findByParentIdsLike" resultType="Office">
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+				<if test="type != null and type != '' ">
+					AND a.type = #{type}
+				</if>
+				AND a.parent_ids LIKE CONCAT('%', #{parentIds}, '%')
+		ORDER BY a.sort,a.code
+	</select>
+
+	<insert id="insert">
+		INSERT INTO sys_office(
+			id, 
+			parent_id, 
+			parent_ids, 
+			area_id, 
+			code, 
+			name, 
+			sort, 
+			type, 
+			grade, 
+			address, 
+			zip_code, 
+			master, 
+			phone, 
+			fax, 
+			email, 
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag,
+			useable,
+			enable,
+			primary_person,
+			deputy_person,
+			office_type,
+			link_time
+		) VALUES (
+			#{id}, 
+			#{parent.id}, 
+			#{parentIds}, 
+			#{area.id}, 
+			#{code}, 
+			#{name}, 
+			#{sort}, 
+			#{type}, 
+			#{grade}, 
+			#{address}, 
+			#{zipCode}, 
+			#{master}, 
+			#{phone}, 
+			#{fax}, 
+			#{email}, 
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag},
+			#{useable},
+			#{enable},
+			#{primaryPerson.id},
+			#{deputyPerson.id},
+			#{officeType},
+			#{linkTime}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE sys_office SET 
+			parent_id = #{parent.id}, 
+			parent_ids = #{parentIds}, 
+			area_id = #{area.id}, 
+			code = #{code}, 
+			sort=#{sort}, 
+			name = #{name}, 
+			type = #{type}, 
+			grade = #{grade}, 
+			address = #{address}, 
+			zip_code = #{zipCode}, 
+			master = #{master}, 
+			phone = #{phone}, 
+			fax = #{fax}, 
+			email = #{email}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks},
+			useable=#{useable},
+			enable=#{enable},
+			primary_person=#{primaryPerson.id},
+			deputy_person=#{deputyPerson.id},
+			office_type=#{officeType},
+			link_time=#{linkTime}
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateParentIds">
+		UPDATE sys_office SET 
+			parent_id = #{parent.id}, 
+			parent_ids = #{parentIds}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE sys_office SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id} OR parent_ids LIKE
+		<if test="dbName == 'oracle'">'%,'||#{id}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{id}+',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{id}, ',%')</if>
+	</update>
+
+	<select id="findByType" resultType="Office">
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		AND a.type = #{type}
+		ORDER BY a.create_date,a.code
+	</select>
+
+	<select id="findSchool" resultType="Office">
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		AND a.type = #{type}
+		<if test="sqlParam.ids != null and sqlParam.ids != ''">
+			and a.id not in
+			<foreach collection="sqlParam.ids" open="(" close=")" item="key" separator=",">
+				#{key}
+			</foreach>
+		</if>
+		ORDER BY a.create_date,a.code
+	</select>
+
+	<select id="findIdInAreaIds" resultType="Office">
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+
+		and a.area_id in (
+		SELECT id FROM sys_area  WHERE  id = #{area.id}
+		OR parent_ids LIKE CONCAT('%,', #{area.id}, ',%') AND del_flag=0
+		)
+
+		ORDER BY a.code
+	</select>
+
+	<select id="findByParentId" resultType="Office" >
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.del_flag = #{delFlag}
+		AND FIND_IN_SET(#{parentId},a.parent_ids)
+	</select>
+	<select id="findByParent" resultType="Office" >
+		SELECT
+		<include refid="officeColumns"/>
+		FROM sys_office a
+		<include refid="officeJoins"/>
+		WHERE a.del_flag = 0
+		AND a.parent_id = #{parentId}
+	</select>
+</mapper>

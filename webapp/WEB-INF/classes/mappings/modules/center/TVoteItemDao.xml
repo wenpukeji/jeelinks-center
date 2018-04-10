@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wenpu.jeelinks.modules.center.dao.TVoteItemDao">
+    
+	<sql id="tVoteItemColumns">
+		a.item_id AS "itemId",
+		a.topic_id AS "topicId",
+		a.vote_count AS "voteCount",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate"
+	</sql>
+	
+	<sql id="tVoteItemJoins">
+	</sql>
+    
+	<select id="get" resultType="TVoteItem">
+		SELECT 
+			<include refid="tVoteItemColumns"/>
+		FROM t_vote_item a
+		<include refid="tVoteItemJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TVoteItem">
+		SELECT 
+			<include refid="tVoteItemColumns"/>
+		FROM t_vote_item a
+		<include refid="tVoteItemJoins"/>
+		<where>
+			
+			<if test="topicId != null and topicId != ''">
+				AND a.topic_id = #{topicId}
+			</if>
+			<if test="createBy != null and createBy.id != null and createBy.id != ''">
+				AND a.create_by = #{createBy.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TVoteItem">
+		SELECT 
+			<include refid="tVoteItemColumns"/>
+		FROM t_vote_item a
+		<include refid="tVoteItemJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_vote_item(
+			item_id,
+			topic_id,
+			vote_count,
+			create_by,
+			create_date,
+			update_by,
+			update_date
+		) VALUES (
+			#{itemId},
+			#{topicId},
+			#{voteCount},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_vote_item SET 	
+			item_id = #{itemId},
+			topic_id = #{topicId},
+			vote_count = #{voteCount},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM t_vote_item
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

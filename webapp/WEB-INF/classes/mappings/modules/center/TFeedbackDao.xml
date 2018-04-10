@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wenpu.jeelinks.modules.center.dao.TFeedbackDao">
+    
+	<sql id="tFeedbackColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.user_name AS "userName",
+		a.email AS "email",
+		a.phone AS "phone",
+		a.content AS "content",
+		a.create_time AS "createTime",
+		a.comefrom AS "comefrom",
+		a.status AS "status",
+		a.memo AS "memo",
+		a.handle_user_id AS "handleUserId",
+		a.qq AS "qq",
+		a.content_type AS "contentType",
+		a.handle_result AS "handleResult",
+		a.hanle_date AS "hanleDate"
+	</sql>
+	
+	<sql id="tFeedbackJoins">
+		LEFT JOIN sys_user u2 ON u2.id = a.user_id
+	</sql>
+    
+	<select id="get" resultType="TFeedback">
+		SELECT 
+			<include refid="tFeedbackColumns"/>
+		FROM t_feedback a
+		<include refid="tFeedbackJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TFeedback">
+		SELECT 
+			<include refid="tFeedbackColumns"/>
+		FROM t_feedback a
+		<include refid="tFeedbackJoins"/>
+		<where>
+			
+			<if test="userName != null and userName != ''">
+				AND a.user_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{userName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{userName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{userName},'%')</if>
+			</if>
+			<if test="beginCreateTime != null and endCreateTime != null and beginCreateTime != '' and endCreateTime != ''">
+				AND a.create_time BETWEEN #{beginCreateTime} AND #{endCreateTime}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="contentType != null and contentType != ''">
+				AND a.content_type = #{contentType}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TFeedback">
+		SELECT 
+			<include refid="tFeedbackColumns"/>
+		FROM t_feedback a
+		<include refid="tFeedbackJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_feedback(
+			id,
+			user_id,
+			user_name,
+			email,
+			phone,
+			content,
+			create_time,
+			comefrom,
+			status,
+			memo,
+			handle_user_id,
+			qq,
+			content_type,
+			handle_result,
+			hanle_date
+		) VALUES (
+			#{id},
+			#{userId},
+			#{userName},
+			#{email},
+			#{phone},
+			#{content},
+			#{createTime},
+			#{comefrom},
+			#{status},
+			#{memo},
+			#{handleUserId},
+			#{qq},
+			#{contentType},
+			#{handleResult},
+			#{hanleDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_feedback SET 	
+			user_id = #{userId},
+			user_name = #{userName},
+			email = #{email},
+			phone = #{phone},
+			content = #{content},
+			create_time = #{createTime},
+			comefrom = #{comefrom},
+			status = #{status},
+			memo = #{memo},
+			handle_user_id = #{handleUserId},
+			qq = #{qq},
+			content_type = #{contentType},
+			handle_result = #{handleResult},
+			hanle_date = #{hanleDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM t_feedback
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

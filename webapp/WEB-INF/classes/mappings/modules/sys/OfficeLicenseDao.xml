@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wenpu.jeelinks.modules.sys.dao.OfficeLicenseDao">
+    
+	<sql id="officeLicenseColumns">
+		a.id AS "id",
+		a.au_name AS "auName",
+		a.office_id AS "office.id",
+		a.au_type AS "auType",
+		a.au_code AS "auCode",
+		a.valid_start_date AS "validStartDate",
+		a.valid_end_date AS "validEndDate",
+		a.au_num AS "auNum",
+		a.au_money AS "auMoney",
+		a.au_scope AS "auScope",
+		a.au_state AS "auState",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		o3.name AS "office.name"
+	</sql>
+	
+	<sql id="officeLicenseJoins">
+		LEFT JOIN sys_office o3 ON o3.id = a.office_id
+	</sql>
+    
+	<select id="get" resultType="OfficeLicense">
+		SELECT 
+			<include refid="officeLicenseColumns"/>
+		FROM sys_office_license a
+		<include refid="officeLicenseJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="OfficeLicense">
+		SELECT 
+			<include refid="officeLicenseColumns"/>
+		FROM sys_office_license a
+		<include refid="officeLicenseJoins"/>
+		<where>
+			
+			<if test="auName != null and auName != ''">
+				AND a.au_name = #{auName}
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND a.office_id = #{office.id}
+			</if>
+			<if test="auType != null and auType != ''">
+				AND a.au_type = #{auType}
+			</if>
+			<if test="validStartDate != null and validStartDate != ''">
+				AND a.valid_start_date = #{validStartDate}
+			</if>
+			<if test="validEndDate != null and validEndDate != ''">
+				AND a.valid_end_date = #{validEndDate}
+			</if>
+			<if test="auState != null and auState != ''">
+				AND a.au_state = #{auState}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="OfficeLicense">
+		SELECT 
+			<include refid="officeLicenseColumns"/>
+		FROM sys_office_license a
+		<include refid="officeLicenseJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_office_license(
+			id,
+			au_name,
+			office_id,
+			au_type,
+			au_code,
+			valid_start_date,
+			valid_end_date,
+			au_num,
+			au_money,
+			au_scope,
+			au_state,
+			create_by,
+			create_date,
+			update_by,
+			update_date
+		) VALUES (
+			#{id},
+			#{auName},
+			#{office.id},
+			#{auType},
+			#{auCode},
+			#{validStartDate},
+			#{validEndDate},
+			#{auNum},
+			#{auMoney},
+			#{auScope},
+			#{auState},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_office_license SET 	
+			au_name = #{auName},
+			office_id = #{office.id},
+			au_type = #{auType},
+			au_code = #{auCode},
+			valid_start_date = #{validStartDate},
+			valid_end_date = #{validEndDate},
+			au_num = #{auNum},
+			au_money = #{auMoney},
+			au_scope = #{auScope},
+			au_state = #{auState},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sys_office_license
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

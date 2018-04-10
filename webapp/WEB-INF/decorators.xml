@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decorators defaultdir="/WEB-INF/views">
+	
+	<!-- 默认装饰页面, 在需要装饰的页面增加<meta name="decorator" content="default"/> -->
+	<decorator name="blank" page="layouts/blank.jsp" />
+	<decorator name="default" page="layouts/default.jsp" />
+	<decorator name="defaultInclude" page="layouts/defaultInclude.jsp" />
+	
+	<!-- 教师端装饰页面 -->
+	<decorator name="teacher_blank" page="layouts/teacher_blank.jsp" />
+	<decorator name="teacher_default" page="layouts/teacher_default.jsp" />
+	<decorator name="teacher_default_onlyinclude" page="layouts/study_teacher_default_onlyinclude.jsp" />
+	
+		<!-- 学生端装饰页面 -->
+	<decorator name="student_blank" page="layouts/student_blank.jsp" />
+	<decorator name="student_default" page="layouts/student_default.jsp" />
+	
+	<decorator name="student_exam" page="layouts/exam_default.jsp" />
+	
+	<!-- CMS基础主题装饰页面 -->
+	<decorator name="cms_default_basic" page="modules/cms/front/themes/basic/layouts/default.jsp" />
+	<decorator name="cms_default_weixin" page="modules/cms/front/themes/weixin/layouts/default.jsp" />
+	
+	
+	<!-- study -->
+	<decorator name="study_default" page="layouts/study_student_default.jsp" />
+ 	<decorator name="study_default_new" page="layouts/study_student_default_new.jsp" />
+	<!-- study该装饰类引入的jquery3.1，由于头像裁剪需要,需要注意jbox和1.9jquery有冲突 ，3.1未测-->
+	<decorator name="study_default2" page="layouts/study_student_default2.jsp" />
+ 
+	<decorator name="study_default_nolb" page="layouts/study_student_nolb.jsp" />
+	
+	<decorator name="study_taecher_default" page="layouts/study_teacher_default.jsp" />
+	<!-- study该装饰类引入的jquery3.1，由于头像裁剪需要,需要注意jbox和1.9jquery有冲突 ，3.1未测-->
+	<decorator name="study_taecher_default2" page="layouts/study_teacher_default2.jsp" />
+ 
+	
+	
+	<decorator name="study_wx_parent" page="layouts/study_weixin_parent.jsp" />
+	<decorator name="study_wx_parent2" page="layouts/study_weixin_parent2.jsp" />
+	<decorator name="study_wx_parent_order" page="layouts/study_weixin_parent_order.jsp" />
+	<decorator name="study_wx_teacher" page="layouts/study_weixin_teacher.jsp" />
+	
+</decorators>

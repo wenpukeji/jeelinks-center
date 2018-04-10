@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wenpu.jeelinks.modules.sys.dao.SysTaskDao">
+    
+	<sql id="sysTaskColumns">
+		a.id AS "id",
+		a.task_name AS "taskName",
+		a.task_desc AS "taskDesc",
+		a.task_period AS "taskPeriod",
+		a.start_date AS "startDate",
+		a.last_date AS "lastDate",
+		a.is_normal AS "isNormal",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate"
+	</sql>
+	
+	<sql id="sysTaskJoins">
+	</sql>
+    
+	<select id="get" resultType="SysTask">
+		SELECT 
+			<include refid="sysTaskColumns"/>
+		FROM sys_task a
+		<include refid="sysTaskJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SysTask">
+		SELECT 
+			<include refid="sysTaskColumns"/>
+		FROM sys_task a
+		<include refid="sysTaskJoins"/>
+		<where>
+			
+			<if test="taskName != null and taskName != ''">
+				AND a.task_name = #{taskName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SysTask">
+		SELECT 
+			<include refid="sysTaskColumns"/>
+		FROM sys_task a
+		<include refid="sysTaskJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_task(
+			id,
+			task_name,
+			task_desc,
+			task_period,
+			start_date,
+			last_date,
+			is_normal,
+			create_by,
+			create_date,
+			update_by,
+			update_date
+		) VALUES (
+			#{id},
+			#{taskName},
+			#{taskDesc},
+			#{taskPeriod},
+			#{startDate},
+			#{lastDate},
+			#{isNormal},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_task SET 	
+			task_name = #{taskName},
+			task_desc = #{taskDesc},
+			task_period = #{taskPeriod},
+			start_date = #{startDate},
+			last_date = #{lastDate},
+			is_normal = #{isNormal},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sys_task
+		WHERE id = #{id}
+	</update>
+	
+</mapper>
